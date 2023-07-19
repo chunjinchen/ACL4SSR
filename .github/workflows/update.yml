@@ -28,7 +28,8 @@ jobs:
       - name: Start Convert
         run: |
           pwd
-          chmod +x ./convertor.sh
+          ls -al
+          chmod +x convertor.sh
           ./convertor.sh
 
 
