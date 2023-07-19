@@ -1,0 +1,38 @@
+name: Daily Fork Update
+
+on:
+  schedule:
+    - cron: "0 0 * * *"  # 每天 UTC 时间 00:00 触发，可根据需求调整触发时间
+
+jobs:
+  update_fork:
+    name: Update Fork and Commit Changes
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Configure Git
+        run: |
+          git config user.name "chunjinchen"
+          git config user.email "chunjinchen1998@gmail.com"
+
+      - name: Fetch Upstream Changes
+        run: |
+          git remote add upstream https://github.com/ACL4SSR/ACL4SSR.git
+          git fetch upstream
+          git checkout master  
+
+      - name: Start Convert
+        run: |
+          pwd
+          chmod +x ./convertor.sh
+          ./convertor.sh
+
+
+      - name: Commit Changes
+        run: |
+          git add .  
+          git commit -m "Daily update: $(date +'%Y-%m-%d')"
+          git push origin master  
