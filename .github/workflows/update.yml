@@ -21,9 +21,10 @@ jobs:
 
       - name: Fetch Upstream Changes
         run: |
+          git switch origin/master
           git remote add upstream https://github.com/ACL4SSR/ACL4SSR.git
           git fetch upstream
-          git checkout master  
+          git switch -c convert upstream/master
 
       - name: Start Convert
         run: |
@@ -39,6 +40,6 @@ jobs:
         run: |
           git add .  
           git commit -m "Daily update: $(date +'%Y-%m-%d')"
-          git fetch origin
-          git merge origin/master --no-stat
+          git switch master
+          git rebase convert
           git push origin master  
