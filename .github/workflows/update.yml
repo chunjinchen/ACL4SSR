@@ -21,6 +21,7 @@ jobs:
 
       - name: Fetch Upstream Changes
         run: |
+          git fetch origin
           git checkout master 
           git remote add upstream https://github.com/ACL4SSR/ACL4SSR.git
           git fetch upstream
