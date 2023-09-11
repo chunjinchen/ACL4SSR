@@ -26,7 +26,7 @@ jobs:
           git remote add upstream https://github.com/ACL4SSR/ACL4SSR.git
           git fetch upstream
           git switch -c convert origin/master
-          git merge upstream/master --no-edit --not-stat -v
+          git merge upstream/master --no-edit --no-stat -v
 
       - name: Start Convert
         run: |
