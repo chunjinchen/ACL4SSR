@@ -40,8 +40,24 @@ jobs:
 
       - name: Commit Changes
         run: |
+          #!/bin/bash
+          # 定义一个处理异常的函数
+          handle_error() {
+            e=$?
+            echo "发生异常，退出状态码：$e"
+            if [ $e -eq 1 ]; then
+              exit 0
+            else
+              exit 1
+            fi
+          }
+          
+          # 捕获异常并调用处理函数
+          trap handle_error ERR
+          
+          set -e
           git add .  
           git commit -m "Daily update: $(date +'%Y-%m-%d')"
           git switch master
           git rebase convert
-          git push origin master  
+          git push origin master
