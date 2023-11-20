@@ -20,23 +20,36 @@ jobs:
           git config user.email "chunjinchen1998@gmail.com"
 
       - name: Fetch Upstream Changes
+        continue-on-error: true
         run: |
           git fetch origin
           git checkout master 
           git remote add upstream https://github.com/ACL4SSR/ACL4SSR.git
           git fetch upstream
-          git switch -c convert origin/master
           git merge upstream/master --no-edit --no-stat -v
+          git push origin master
 
       - name: Start Convert
+        id: convert
         run: |
           pushd ./Clash/config || return 1
           # 使用find命令递归查找当前目录及其子目录下的所有文件，但排除.sh和.md文件
+          count=0
           find . -type f -not -name '*.sh' -not -path './.*/*' -not -name '*.md' -print0 | while IFS= read -r -d '' file; do
-            # 使用sed命令进行替换，并将结果写回原文件
+            # 使用sed命令进行替换，并将结果写回原文件,并返回是否替换成功的状态码
             sed -i 's|https://raw\.githubusercontent\.com/ACL4SSR/ACL4SSR/master|https://cdn\.jsdelivr\.net/gh/guyuuan/ACL4SSR@master|g' "$file"
-           echo "替换完成: $file"
+            status=$?
+            if [ $status -eq 0 ]; then
+              echo "替换成功: $file"
+              count=count+1
+            fi
           done
+          # 如果count大于0返回success，否则返回fail
+          if [ $count -gt 0 ]; then
+            echo "success"
+          else
+            echo "fail"
+          fi
 
       - name: Commit Changes
         run: |
@@ -56,8 +69,12 @@ jobs:
           trap handle_error ERR
           
           set -e
-          git add .  
-          git commit -m "Daily update: $(date +'%Y-%m-%d')"
-          git switch master
-          git rebase convert
-          git push origin master
+          # 获取上一个步骤（convert）的输出
+          status=$(echo "${{ steps.convert.outputs.stdout }}" | tail -n 1)
+          if [ "$status" == "fail" ]; then
+            exit 0
+          else  
+            git add .  
+            git commit -m "Daily update: $(date +'%Y-%m-%d')"
+            git push origin master
+          fi
