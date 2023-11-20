@@ -34,7 +34,7 @@ jobs:
           # 使用find命令递归查找当前目录及其子目录下的所有文件，但排除.sh和.md文件
           find . -type f -not -name '*.sh' -not -path './.*/*' -not -name '*.md' -print0 | while IFS= read -r -d '' file; do
             # 使用sed命令进行替换，并将结果写回原文件
-            sed -i 's|https://raw\.githubusercontent\.com/ACL4SSR/ACL4SSR/master|https://cdn\.jsdelivr\.net/gh/chunjinchen/ACL4SSR@master|g' "$file"
+            sed -i 's|https://raw\.githubusercontent\.com/ACL4SSR/ACL4SSR/master|https://cdn\.jsdelivr\.net/gh/guyuuan/ACL4SSR@master|g' "$file"
            echo "替换完成: $file"
           done
 
