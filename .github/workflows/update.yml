@@ -46,9 +46,9 @@ jobs:
           done
           # 如果count大于0返回success，否则返回fail
           if [ $count -gt 0 ]; then
-            echo "success"
+            echo "::set-output name=status::success"
           else
-            echo "fail"
+            echo "::set-output name=status::fail"
           fi
 
       - name: Commit Changes
@@ -70,7 +70,8 @@ jobs:
           
           set -e
           # 获取上一个步骤（convert）的输出
-          status=$(echo "${{ steps.convert.outputs.stdout }}" | tail -n 1)
+          status=$(echo "${{ steps.convert.outputs.status }}" | tail -n 1)
+          echo "status: $status"
           if [ "$status" == "fail" ]; then
             exit 0
           else  
