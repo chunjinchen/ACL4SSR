@@ -46,12 +46,14 @@ jobs:
           done
           # 如果count大于0返回success，否则返回fail
           if [ $count -gt 0 ]; then
-            echo "::set-output name=status::success"
+            echo "CONVERT_RESULT=success" >> "$GITHUB_OUTPUT"
           else
-            echo "::set-output name=status::fail"
+            echo "CONVERT_RESULT=fail" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Commit Changes
+        env: 
+          CONVERT_RESULT: ${{ steps.convert.outputs.CONVERT_RESULT }}
         run: |
           #!/bin/bash
           # 定义一个处理异常的函数
@@ -70,7 +72,7 @@ jobs:
           
           set -e
           # 获取上一个步骤（convert）的输出
-          status=$(echo "${{ steps.convert.outputs.status }}" | tail -n 1)
+          status=$CONVERT_RESULT
           echo "status: $status"
           if [ "$status" == "fail" ]; then
             exit 0
