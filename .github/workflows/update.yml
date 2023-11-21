@@ -16,7 +16,7 @@ jobs:
 
       - name: Configure Git
         run: |
-          git config user.name "chunjinchen"
+          git config user.name "guyuuan"
           git config user.email "chunjinchen1998@gmail.com"
 
       - name: Fetch Upstream Changes
@@ -27,25 +27,31 @@ jobs:
           git remote add upstream https://github.com/ACL4SSR/ACL4SSR.git
           git fetch upstream
           git merge upstream/master --no-edit --no-stat -v
+          # 先将合并后的结果提交到远程
           git push origin master
 
       - name: Start Convert
         id: convert
         run: |
           pushd ./Clash/config || return 1
-          # 使用find命令递归查找当前目录及其子目录下的所有文件，但排除.sh和.md文件
           count=0
-          find . -type f -not -name '*.sh' -not -path './.*/*' -not -name '*.md' -print0 | while IFS= read -r -d '' file; do
+          # 使用find命令递归查找当前目录及其子目录下的所有文件，但排除.sh和.md文件
+          mapfile -d '' file_list < <(find . -type f -not -name '*.sh' -not -path './.*/*' -not -name '*.md' -print0)
+          # 遍历文件列表
+          #while IFS= read -r -d '' file; do
+          for file in "${file_list[@]}"; do
             # 使用sed命令进行替换，并将结果写回原文件,并返回是否替换成功的状态码
+            c=$(sed -n 's|https://raw\.githubusercontent\.com/ACL4SSR/ACL4SSR/master|https://cdn\.jsdelivr\.net/gh/guyuuan/ACL4SSR@master|gp' "$file" | sed -n '=' | wc -l )
             sed -i 's|https://raw\.githubusercontent\.com/ACL4SSR/ACL4SSR/master|https://cdn\.jsdelivr\.net/gh/guyuuan/ACL4SSR@master|g' "$file"
-            status=$?
-            if [ $status -eq 0 ]; then
-              echo "替换成功: $file"
-              count=count+1
+            if [ $c -gt 0 ]; then
+              count=$( expr $count + $c)
+              echo "替换成功[$count,$c]: $file"
             fi
           done
-          # 如果count大于0返回success，否则返回fail
-          if [ $count -gt 0 ]; then
+          echo "替换总数: ${count}"
+          # 如果sum大于0返回success，否则返回fail
+          if [ ${count} -gt 0 ]; then
+            echo "success"
             echo "CONVERT_RESULT=success" >> "$GITHUB_OUTPUT"
           else
             echo "CONVERT_RESULT=fail" >> "$GITHUB_OUTPUT"
