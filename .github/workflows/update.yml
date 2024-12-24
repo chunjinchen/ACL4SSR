@@ -27,7 +27,7 @@ jobs:
           git checkout master 
           git remote add upstream https://github.com/ACL4SSR/ACL4SSR.git
           git fetch upstream
-          git merge upstream/master --no-edit --no-stat -v
+          git rebase upstream/master 
           # 先将合并后的结果提交到远程
           git push origin master
 
